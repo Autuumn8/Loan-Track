@@ -32,12 +32,13 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
     amount: editLoan?.amount?.toString() || '',
     interestRate: editLoan?.interestRate?.toString() || '',
     dueDate: editLoan?.dueDate || '',
+    paymentTerm: editLoan?.paymentTerm?.toString() || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.source || !formData.amount || !formData.interestRate || !formData.dueDate) {
+    if (!formData.source || !formData.amount || !formData.interestRate || !formData.dueDate || !formData.paymentTerm) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -48,6 +49,7 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
 
     const amount = parseFloat(formData.amount);
     const interestRate = parseFloat(formData.interestRate);
+    const paymentTerm = parseInt(formData.paymentTerm) as 1 | 3 | 6 | 12;
 
     if (editLoan && onUpdate) {
       onUpdate({
@@ -56,6 +58,7 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
         amount,
         interestRate,
         dueDate: formData.dueDate,
+        paymentTerm,
       });
     } else {
       onAdd({
@@ -64,11 +67,12 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
         interestRate,
         remainingBalance: amount,
         dueDate: formData.dueDate,
+        paymentTerm,
         status: 'active',
       });
     }
 
-    setFormData({ source: '', amount: '', interestRate: '', dueDate: '' });
+    setFormData({ source: '', amount: '', interestRate: '', dueDate: '', paymentTerm: '' });
     setOpen(false);
     
     toast({
@@ -143,6 +147,21 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
               value={formData.dueDate}
               onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="paymentTerm">Payment Term</Label>
+            <Select value={formData.paymentTerm} onValueChange={(value) => setFormData({ ...formData, paymentTerm: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select payment term" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 Month</SelectItem>
+                <SelectItem value="3">3 Months</SelectItem>
+                <SelectItem value="6">6 Months</SelectItem>
+                <SelectItem value="12">12 Months</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button type="submit" className="w-full">

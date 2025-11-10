@@ -5,6 +5,7 @@ export interface Loan {
   interestRate: number;
   remainingBalance: number;
   dueDate: string;
+  paymentTerm: 1 | 3 | 6 | 12;
   status: 'active' | 'paid' | 'overdue';
   createdAt: string;
   payments: Payment[];
