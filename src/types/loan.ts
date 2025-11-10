@@ -6,9 +6,19 @@ export interface Loan {
   remainingBalance: number;
   dueDate: string;
   paymentTerm: 1 | 3 | 6 | 12;
+  monthlyInstallment: number;
+  installments: Installment[];
   status: 'active' | 'paid' | 'overdue';
   createdAt: string;
   payments: Payment[];
+}
+
+export interface Installment {
+  id: string;
+  month: number;
+  amount: number;
+  dueDate: string;
+  status: 'pending' | 'paid' | 'overdue';
 }
 
 export interface Payment {

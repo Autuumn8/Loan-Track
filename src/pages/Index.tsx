@@ -50,10 +50,22 @@ const Index = () => {
           id: Date.now().toString(),
         };
         const remainingBalance = loan.remainingBalance - payment.amount;
+        
+        // Mark installments as paid based on payment amount
+        let paymentAmount = payment.amount;
+        const updatedInstallments = loan.installments.map(installment => {
+          if (installment.status === 'pending' && paymentAmount >= installment.amount) {
+            paymentAmount -= installment.amount;
+            return { ...installment, status: 'paid' as const };
+          }
+          return installment;
+        });
+        
         return {
           ...loan,
           remainingBalance: Math.max(0, remainingBalance),
           status: remainingBalance <= 0 ? 'paid' : loan.status,
+          installments: updatedInstallments,
           payments: [...loan.payments, newPayment],
         };
       }

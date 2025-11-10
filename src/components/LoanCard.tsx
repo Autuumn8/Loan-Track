@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Loan } from "@/types/loan";
-import { Calendar, DollarSign, TrendingDown, Edit, Trash2 } from "lucide-react";
+import { Calendar, DollarSign, TrendingDown, Edit, Trash2, CheckCircle2, Circle, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 
 interface LoanCardProps {
@@ -61,6 +61,43 @@ export const LoanCard = ({ loan, onEdit, onDelete, onPayment }: LoanCardProps) =
             <span className="font-medium text-foreground">{progressPercentage.toFixed(0)}%</span>
           </div>
           <Progress value={progressPercentage} className="h-2" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">Monthly Installments</span>
+            <span className="text-sm text-muted-foreground">₱{loan.monthlyInstallment.toLocaleString()} / month</span>
+          </div>
+          <div className="space-y-1.5">
+            {loan.installments.map((installment) => {
+              const isPaid = installment.status === 'paid';
+              const isOverdue = installment.status === 'overdue';
+              
+              return (
+                <div 
+                  key={installment.id} 
+                  className="flex items-center justify-between p-2 rounded-lg border bg-card/50"
+                >
+                  <div className="flex items-center gap-2">
+                    {isPaid ? (
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                    ) : isOverdue ? (
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="text-sm font-medium">Month {installment.month}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground">
+                      {format(new Date(installment.dueDate), 'MMM dd, yyyy')}
+                    </span>
+                    <span className="text-sm font-semibold">₱{installment.amount.toLocaleString()}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loan, LoanSource } from "@/types/loan";
+import { Loan, LoanSource, Installment } from "@/types/loan";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { addMonths, format } from "date-fns";
 
 interface AddLoanDialogProps {
   onAdd: (loan: Omit<Loan, 'id' | 'createdAt' | 'payments'>) => void;
@@ -50,6 +51,19 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
     const amount = parseFloat(formData.amount);
     const interestRate = parseFloat(formData.interestRate);
     const paymentTerm = parseInt(formData.paymentTerm) as 1 | 3 | 6 | 12;
+    
+    // Calculate monthly installment
+    const monthlyInstallment = amount / paymentTerm;
+    
+    // Generate installments
+    const startDate = new Date(formData.dueDate);
+    const installments: Installment[] = Array.from({ length: paymentTerm }, (_, index) => ({
+      id: `installment-${Date.now()}-${index}`,
+      month: index + 1,
+      amount: monthlyInstallment,
+      dueDate: format(addMonths(startDate, index), 'yyyy-MM-dd'),
+      status: 'pending' as const,
+    }));
 
     if (editLoan && onUpdate) {
       onUpdate({
@@ -59,6 +73,8 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
         interestRate,
         dueDate: formData.dueDate,
         paymentTerm,
+        monthlyInstallment,
+        installments,
       });
     } else {
       onAdd({
@@ -68,6 +84,8 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
         remainingBalance: amount,
         dueDate: formData.dueDate,
         paymentTerm,
+        monthlyInstallment,
+        installments,
         status: 'active',
       });
     }
