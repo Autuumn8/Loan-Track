@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,12 +29,26 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    source: editLoan?.source || '',
-    amount: editLoan?.amount?.toString() || '',
-    interestRate: editLoan?.interestRate?.toString() || '',
-    dueDate: editLoan?.dueDate || '',
-    paymentTerm: editLoan?.paymentTerm?.toString() || '',
+    source: '',
+    amount: '',
+    interestRate: '',
+    dueDate: '',
+    paymentTerm: '',
   });
+
+  // Open dialog and populate form when editLoan changes
+  useEffect(() => {
+    if (editLoan) {
+      setFormData({
+        source: editLoan.source,
+        amount: editLoan.amount.toString(),
+        interestRate: editLoan.interestRate.toString(),
+        dueDate: editLoan.dueDate,
+        paymentTerm: editLoan.paymentTerm?.toString() || '',
+      });
+      setOpen(true);
+    }
+  }, [editLoan]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

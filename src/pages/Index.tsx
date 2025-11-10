@@ -10,6 +10,7 @@ const Index = () => {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [editLoan, setEditLoan] = useState<Loan | null>(null);
 
   // Load loans from localStorage on mount
   useEffect(() => {
@@ -73,9 +74,56 @@ const Index = () => {
     }));
   };
 
+  const payInstallment = (loanId: string, installmentId: string) => {
+    setLoans(loans.map(loan => {
+      if (loan.id === loanId) {
+        const updatedInstallments = loan.installments.map(installment => 
+          installment.id === installmentId 
+            ? { ...installment, status: 'paid' as const }
+            : installment
+        );
+        
+        const paidInstallment = loan.installments.find(i => i.id === installmentId);
+        const paymentAmount = paidInstallment?.amount || 0;
+        const remainingBalance = loan.remainingBalance - paymentAmount;
+        
+        // Create a payment record
+        const newPayment: Payment = {
+          id: Date.now().toString(),
+          amount: paymentAmount,
+          date: new Date().toISOString().split('T')[0],
+          note: `Month ${paidInstallment?.month} payment`,
+        };
+        
+        return {
+          ...loan,
+          remainingBalance: Math.max(0, remainingBalance),
+          status: remainingBalance <= 0 ? 'paid' : loan.status,
+          installments: updatedInstallments,
+          payments: [...loan.payments, newPayment],
+        };
+      }
+      return loan;
+    }));
+    
+    // Check if all installments are paid, close dialog
+    const updatedLoan = loans.find(l => l.id === loanId);
+    if (updatedLoan?.installments.every(i => i.id === installmentId || i.status === 'paid')) {
+      setPaymentDialogOpen(false);
+    }
+  };
+
   const handlePaymentClick = (loan: Loan) => {
     setSelectedLoan(loan);
     setPaymentDialogOpen(true);
+  };
+
+  const handleEditClick = (loan: Loan) => {
+    setEditLoan(loan);
+  };
+
+  const handleAddLoanDialogClose = () => {
+    setEditLoan(null);
   };
 
   return (
@@ -93,7 +141,11 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground">Manage your loans efficiently</p>
               </div>
             </div>
-            <AddLoanDialog onAdd={addLoan} />
+            <AddLoanDialog 
+              onAdd={addLoan} 
+              editLoan={editLoan}
+              onUpdate={updateLoan}
+            />
           </div>
         </div>
       </header>
@@ -111,7 +163,11 @@ const Index = () => {
             </div>
             <h2 className="text-2xl font-semibold text-foreground mb-2">No loans yet</h2>
             <p className="text-muted-foreground mb-6">Start tracking your loans by adding your first one</p>
-            <AddLoanDialog onAdd={addLoan} />
+            <AddLoanDialog 
+              onAdd={addLoan}
+              editLoan={editLoan}
+              onUpdate={updateLoan}
+            />
           </div>
         ) : (
           <div>
@@ -121,7 +177,7 @@ const Index = () => {
                 <LoanCard
                   key={loan.id}
                   loan={loan}
-                  onEdit={(loan) => {/* Will implement edit later */}}
+                  onEdit={handleEditClick}
                   onDelete={deleteLoan}
                   onPayment={handlePaymentClick}
                 />
@@ -136,7 +192,7 @@ const Index = () => {
         loan={selectedLoan}
         open={paymentDialogOpen}
         onOpenChange={setPaymentDialogOpen}
-        onAddPayment={addPayment}
+        onPayInstallment={payInstallment}
       />
     </div>
   );
