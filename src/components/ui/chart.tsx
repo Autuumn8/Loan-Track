@@ -103,12 +103,12 @@ const ChartTooltipContent = React.forwardRef<
   (
     {
       active,
-      payload: payloadProp,
+      payload,
       className,
       indicator = "dot",
       hideLabel = false,
       hideIndicator = false,
-      label: labelProp,
+      label,
       labelFormatter,
       labelClassName,
       formatter,
@@ -120,16 +120,13 @@ const ChartTooltipContent = React.forwardRef<
     ref,
   ) => {
     const { config } = useChart();
-    
-    const payload = payloadProp as any[] | undefined;
-    const label = labelProp as string | number | undefined;
 
     const tooltipLabel = React.useMemo(() => {
       if (hideLabel || !payload?.length) {
         return null;
       }
 
-      const [item] = payload;
+      const [item] = payload as any[];
       const key = `${labelKey || item.dataKey || item.name || "value"}`;
       const itemConfig = getPayloadConfigFromPayload(config, item, key);
       const value =
@@ -138,7 +135,7 @@ const ChartTooltipContent = React.forwardRef<
           : itemConfig?.label;
 
       if (labelFormatter) {
-        return <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>;
+        return <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload as any)}</div>;
       }
 
       if (!value) {
@@ -165,7 +162,7 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {payload?.map((item, index) => {
+          {(payload as any[] | undefined)?.map((item: any, index: number) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const indicatorColor = color || item.payload?.fill || item.color;
