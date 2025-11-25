@@ -59,7 +59,7 @@ const ChartContainer = React.forwardRef<
 ChartContainer.displayName = "Chart";
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
+  const colorConfig = Object.entries(config).filter(([_, cfg]) => cfg.theme || cfg.color);
 
   if (!colorConfig.length) {
     return null;
@@ -103,12 +103,12 @@ const ChartTooltipContent = React.forwardRef<
   (
     {
       active,
-      payload,
+      payload: payloadProp,
       className,
       indicator = "dot",
       hideLabel = false,
       hideIndicator = false,
-      label,
+      label: labelProp,
       labelFormatter,
       labelClassName,
       formatter,
@@ -119,6 +119,9 @@ const ChartTooltipContent = React.forwardRef<
     ref,
   ) => {
     const { config } = useChart();
+    
+    const payload = payloadProp as any[] | undefined;
+    const label = labelProp as string | number | undefined;
 
     const tooltipLabel = React.useMemo(() => {
       if (hideLabel || !payload?.length) {
@@ -163,7 +166,7 @@ const ChartTooltipContent = React.forwardRef<
           {payload.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
-            const indicatorColor = color || item.payload.fill || item.color;
+            const indicatorColor = color || item.payload?.fill || item.color;
 
             return (
               <div
@@ -174,7 +177,7 @@ const ChartTooltipContent = React.forwardRef<
                 )}
               >
                 {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name, item, index, item.payload)
+                  formatter(item.value, item.name, item, index, item.payload ?? {})
                 ) : (
                   <>
                     {itemConfig?.icon ? (
