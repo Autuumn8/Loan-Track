@@ -1,8 +1,8 @@
 export interface Loan {
   id: string;
+  productName: string;
   source: string;
   amount: number;
-  interestRate: number;
   remainingBalance: number;
   dueDate: string;
   paymentTerm: 1 | 3 | 6 | 12;
