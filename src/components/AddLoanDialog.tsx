@@ -64,12 +64,19 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
 
     const amount = parseFloat(formData.amount);
     const paymentTerm = parseInt(formData.paymentTerm) as 1 | 3 | 6 | 12;
+    const dueDay = parseInt(formData.dueDate);
     
     // Calculate monthly installment
     const monthlyInstallment = amount / paymentTerm;
     
-    // Generate installments
-    const startDate = new Date(formData.dueDate);
+    // Generate installments starting from current month
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
+    // If the due day has already passed this month, start from next month
+    if (startDate <= today) {
+      startDate.setMonth(startDate.getMonth() + 1);
+    }
+    
     const installments: Installment[] = Array.from({ length: paymentTerm }, (_, index) => ({
       id: `installment-${Date.now()}-${index}`,
       month: index + 1,
@@ -169,13 +176,23 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dueDate">Due Date</Label>
-            <Input
-              id="dueDate"
-              type="date"
-              value={formData.dueDate}
-              onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-            />
+            <Label htmlFor="dueDate">Due Day of Month</Label>
+            <Select value={formData.dueDate} onValueChange={(value) => setFormData({ ...formData, dueDate: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select due day" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">Every 5th</SelectItem>
+                <SelectItem value="15">Every 15th</SelectItem>
+                <SelectItem value="25">Every 25th</SelectItem>
+                <SelectItem value="---separator---" disabled>─────────────</SelectItem>
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                  <SelectItem key={day} value={day.toString()}>
+                    {day}{day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th'} of the month
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
