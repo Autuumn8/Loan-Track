@@ -29,9 +29,9 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
+    productName: '',
     source: '',
     amount: '',
-    interestRate: '',
     dueDate: '',
     paymentTerm: '',
   });
@@ -40,9 +40,9 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
   useEffect(() => {
     if (editLoan) {
       setFormData({
+        productName: editLoan.productName || '',
         source: editLoan.source,
         amount: editLoan.amount.toString(),
-        interestRate: editLoan.interestRate.toString(),
         dueDate: editLoan.dueDate,
         paymentTerm: editLoan.paymentTerm?.toString() || '',
       });
@@ -53,7 +53,7 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.source || !formData.amount || !formData.interestRate || !formData.dueDate || !formData.paymentTerm) {
+    if (!formData.productName || !formData.source || !formData.amount || !formData.dueDate || !formData.paymentTerm) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -63,7 +63,6 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
     }
 
     const amount = parseFloat(formData.amount);
-    const interestRate = parseFloat(formData.interestRate);
     const paymentTerm = parseInt(formData.paymentTerm) as 1 | 3 | 6 | 12;
     
     // Calculate monthly installment
@@ -82,9 +81,9 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
     if (editLoan && onUpdate) {
       onUpdate({
         ...editLoan,
+        productName: formData.productName,
         source: formData.source,
         amount,
-        interestRate,
         dueDate: formData.dueDate,
         paymentTerm,
         monthlyInstallment,
@@ -92,9 +91,9 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
       });
     } else {
       onAdd({
+        productName: formData.productName,
         source: formData.source,
         amount,
-        interestRate,
         remainingBalance: amount,
         dueDate: formData.dueDate,
         paymentTerm,
@@ -104,7 +103,7 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
       });
     }
 
-    setFormData({ source: '', amount: '', interestRate: '', dueDate: '', paymentTerm: '' });
+    setFormData({ productName: '', source: '', amount: '', dueDate: '', paymentTerm: '' });
     setOpen(false);
     
     toast({
@@ -129,6 +128,17 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="productName">Product Name</Label>
+            <Input
+              id="productName"
+              type="text"
+              placeholder="iPhone 15, Laptop, etc."
+              value={formData.productName}
+              onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="source">Loan Source</Label>
             <Select value={formData.source} onValueChange={(value) => setFormData({ ...formData, source: value })}>
@@ -155,19 +165,6 @@ export const AddLoanDialog = ({ onAdd, editLoan, onUpdate }: AddLoanDialogProps)
               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               min="0"
               step="0.01"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="interestRate">Interest Rate (%)</Label>
-            <Input
-              id="interestRate"
-              type="number"
-              placeholder="5"
-              value={formData.interestRate}
-              onChange={(e) => setFormData({ ...formData, interestRate: e.target.value })}
-              min="0"
-              step="0.1"
             />
           </div>
 

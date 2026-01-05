@@ -34,8 +34,10 @@ export const LoanCard = ({ loan, onEdit, onDelete, onPayment }: LoanCardProps) =
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-xl">{loan.source}</CardTitle>
+            <CardTitle className="text-xl">{loan.productName || loan.source}</CardTitle>
             <CardDescription className="flex items-center gap-2 mt-1">
+              <span className="text-xs">{loan.source}</span>
+              <span className="text-muted-foreground">•</span>
               <Calendar className="h-4 w-4" />
               Due: {format(new Date(loan.dueDate), 'MMM dd, yyyy')}
             </CardDescription>
@@ -104,10 +106,6 @@ export const LoanCard = ({ loan, onEdit, onDelete, onPayment }: LoanCardProps) =
           </div>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <TrendingDown className="h-4 w-4" />
-          <span>Interest Rate: {loan.interestRate}%</span>
-        </div>
 
         <div className="flex gap-2 pt-2">
           <Button 
