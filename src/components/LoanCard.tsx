@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Loan } from "@/types/loan";
-import { Calendar, DollarSign, TrendingDown, Edit, Trash2, CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { Calendar, PhilippinePeso, Edit, Trash2, CheckCircle2, Circle, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 
 interface LoanCardProps {
@@ -113,7 +113,7 @@ export const LoanCard = ({ loan, onEdit, onDelete, onPayment }: LoanCardProps) =
             className="flex-1"
             disabled={loan.status === 'paid'}
           >
-            <DollarSign className="h-4 w-4 mr-2" />
+            <PhilippinePeso className="h-4 w-4 mr-2" />
             Add Payment
           </Button>
           <Button 
