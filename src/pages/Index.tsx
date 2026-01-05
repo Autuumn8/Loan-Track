@@ -189,7 +189,7 @@ const Index = () => {
 
       {/* Payment Dialog */}
       <PaymentDialog
-        loan={selectedLoan}
+        loan={selectedLoan ? loans.find(l => l.id === selectedLoan.id) || null : null}
         open={paymentDialogOpen}
         onOpenChange={setPaymentDialogOpen}
         onPayInstallment={payInstallment}
